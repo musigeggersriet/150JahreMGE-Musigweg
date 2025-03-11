@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spiel</title>
+  <style>
+    /* Globale Einstellungen */
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      position: relative;
+      color: #fff;
+    }
+    /* Hintergrundbild als Pseudo-Element für einen blasseren Effekt */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      opacity: 0.5; /* Blasser Effekt */
+      z-index: -1;
+    }
+    /* Topbar mit erweitertem Layout, größerem Logo und Markenname */
+    .topbar {
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px; /* Erhöhte Höhe */
+      font-size: 28px; /* Größere Schrift */
+      font-weight: bold;
+    }
+    .topbar img.logo {
+      height: 100px; /* Größeres Logo */
+      margin-right: 20px;
+    }
+    /* Container für den Seiteninhalt */
+    .container {
+      padding: 20px;
+      text-align: center;
+    }
+    /* Styling für den "Willkommen"-Schriftzug auf der Startseite */
+    #startPage h1 {
+      margin-top: 50px;
+      font-size: 60px; /* Noch größere Schriftgröße */
+      text-align: center;
+    }
+    /* Button-Styling */
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: #fff;
+    }
+    /* Spezifisches Styling für den Start-Button */
+    #startButton {
+      font-size: 30px; /* Größerer Text */
+      padding: 25px 40px; /* Größerer Button */
+    }
+    /* Option-Buttons im Spiel */
+    .option-button {
+      display: block;
+      width: 80%;
+      margin: 10px auto;
+    }
+    /* Audioanzeige Styling */
+    .audio-display {
+      margin: 20px auto;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <!-- Topbar mit Logo und Markenname -->
+  <div class="topbar">
+    <img src="logo.png" alt="Logo" class="logo">
+    <span>Musig Eggersriet  -  Musigweg</span>
+  </div>
+
+  <!-- Startseite -->
+  <div id="startPage" class="container">
+    <h1>Willkommen</h1>
+    <button id="startButton">Spiel starten</button>
+  </div>
+
+  <!-- Spielseite -->
+  <div id="gamePage" class="container" style="display:none;">
+    <!-- Audioanzeige -->
+    <div class="audio-display">
+      <audio id="audioPlayer" src="" preload="auto" controls></audio>
+    </div>
+    <div id="questionArea">
+      <p id="questionText">Wähle das passende Instrument zum Ton...</p>
+      <div id="options"></div>
+    </div>
+  </div>
+
+  <!-- Ergebnisseite -->
+  <div id="resultPage" class="container" style="display:none;">
+    <h1>Ergebnis</h1>
+    <p id="scoreText"></p>
+    <p>Danke fürs Spielen!</p>
+    <button id="restartButton">Spiel neu starten</button>
+  </div>
+
+  <script>
+    // Spieldaten: 6 Runden, jeweils 6 Auswahlmöglichkeiten und der Index der richtigen Antwort
+    const rounds = [
+      {
+        audio: 'audio1.mp3',
+        options: ['Option 1', 'Option 2', 'Option 3', 'Option 4', 'Option 5', 'Option 6'],
+        correct: 0
+      },
+      {
+        audio: 'audio2.mp3',
+        options: ['Option 1', 'Option 2', 'Option 3', 'Option 4', 'Option 5', 'Option 6'],
+        correct: 1
+      },
+      {
+        audio: 'audio3.mp3',
+        options: ['Option 1', 'Option 2', 'Option 3', 'Option 4', 'Option 5', 'Option 6'],
+        correct: 2
+      },
+      {
+        audio: 'audio4.mp3',
+        options: ['Option 1', 'Option 2', 'Option 3', 'Option 4', 'Option 5', 'Option 6'],
+        correct: 3
+      },
+      {
+        audio: 'audio5.mp3',
+        options: ['Option 1', 'Option 2', 'Option 3', 'Option 4', 'Option 5', 'Option 6'],
+        correct: 4
+      },
+      {
+        audio: 'audio6.mp3',
+        options: ['Option 1', 'Option 2', 'Option 3', 'Option 4', 'Option 5', 'Option 6'],
+        correct: 5
+      }
+    ];
+    
+    let currentRound = 0;
+    let score = 0;
+    
+    // Elemente abrufen
+    const startButton = document.getElementById('startButton');
+    const restartButton = document.getElementById('restartButton');
+    const startPage = document.getElementById('startPage');
+    const gamePage = document.getElementById('gamePage');
+    const resultPage = document.getElementById('resultPage');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const optionsDiv = document.getElementById('options');
+    const scoreText = document.getElementById('scoreText');
+    
+    // Event für den Start-Button
+    startButton.addEventListener('click', () => {
+      // Hinweis: Ton einschalten
+      alert("Ton an!");
+      startPage.style.display = 'none';
+      gamePage.style.display = 'block';
+      currentRound = 0;
+      score = 0;
+      loadRound();
+    });
+    
+    // Event für den Neustart-Button
+    restartButton.addEventListener('click', () => {
+      resultPage.style.display = 'none';
+      startPage.style.display = 'block';
+    });
+    
+    // Lädt eine Runde bzw. zeigt die Ergebnisseite, wenn alle Runden abgeschlossen sind
+    function loadRound() {
+      if (currentRound < rounds.length) {
+        const round = rounds[currentRound];
+        // Setze und spiele die MP3
+        audioPlayer.src = round.audio;
+        audioPlayer.play();
+        
+        // Optionen zurücksetzen
+        optionsDiv.innerHTML = '';
+        round.options.forEach((option, index) => {
+          const btn = document.createElement('button');
+          btn.className = 'option-button';
+          btn.textContent = option;
+          btn.addEventListener('click', () => selectOption(index));
+          optionsDiv.appendChild(btn);
+        });
+      } else {
+        // Alle Runden abgeschlossen: Audio stoppen und Ergebnisse anzeigen
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        gamePage.style.display = 'none';
+        resultPage.style.display = 'block';
+        scoreText.textContent = "Du hast " + score + " von " + rounds.length + " Punkten erreicht.";
+      }
+    }
+    
+    // Prüft die Antwort und lädt die nächste Runde
+    function selectOption(selectedIndex) {
+      const round = rounds[currentRound];
+      if (selectedIndex === round.correct) {
+        score++;
+      }
+      currentRound++;
+      loadRound();
+    }
+  </script>
+</body>
+</html>
