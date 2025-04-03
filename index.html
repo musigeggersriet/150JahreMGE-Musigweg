@@ -22,7 +22,7 @@
       bottom: 0;
       background: url('background.jpg') no-repeat center center fixed;
       background-size: cover;
-      opacity: 0.5; /* Blasser Effekt */
+      opacity: 0.5;
       z-index: -1;
     }
     /* Topbar mit erweitertem Layout, größerem Logo und Markenname */
@@ -31,12 +31,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 30px; /* Erhöhte Höhe */
-      font-size: 28px; /* Größere Schrift */
+      padding: 30px;
+      font-size: 28px;
       font-weight: bold;
     }
     .topbar img.logo {
-      height: 100px; /* Größeres Logo */
+      height: 100px;
       margin-right: 20px;
     }
     /* Container für den Seiteninhalt */
@@ -47,7 +47,7 @@
     /* Styling für den "Willkommen"-Schriftzug auf der Startseite */
     #startPage h1 {
       margin-top: 50px;
-      font-size: 60px; /* Noch größere Schriftgröße */
+      font-size: 60px;
       text-align: center;
     }
     /* Button-Styling */
@@ -63,8 +63,8 @@
     }
     /* Spezifisches Styling für den Start-Button */
     #startButton {
-      font-size: 30px; /* Größerer Text */
-      padding: 25px 40px; /* Größerer Button */
+      font-size: 30px;
+      padding: 25px 40px;
     }
     /* Option-Buttons im Spiel */
     .option-button {
@@ -82,10 +82,10 @@
       position: fixed;
       bottom: 20px;
       left: 20px;
-      width: 200px; /* Größe anpassen */
+      width: 200px;
       height: auto;
-      opacity: 0.8; /* Leicht transparent */
-      z-index: 1000; /* Über anderen Elementen */
+      opacity: 0.8;
+      z-index: 1000;
     }
   </style>
 </head>
@@ -126,7 +126,7 @@
   </div>
 
   <script>
-    // Spieldaten: 6 Runden, jeweils 6 Auswahlmöglichkeiten und der Index der richtigen Antwort
+    // Spieldaten: 6 Runden mit zufälliger Reihenfolge
     const rounds = [
       {
         audio: 'Cornet_Concertpiece.mp3',
@@ -154,10 +154,10 @@
         correct: 4
       }
     ];
-    
+
     let currentRound = 0;
     let score = 0;
-    
+
     // Elemente abrufen
     const startButton = document.getElementById('startButton');
     const restartButton = document.getElementById('restartButton');
@@ -167,32 +167,42 @@
     const audioPlayer = document.getElementById('audioPlayer');
     const optionsDiv = document.getElementById('options');
     const scoreText = document.getElementById('scoreText');
-    
+
+    // Funktion zum Mischen eines Arrays (Fisher-Yates Algorithmus)
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]]; // Swap
+      }
+    }
+
     // Event für den Start-Button
     startButton.addEventListener('click', () => {
-      // Hinweis: Ton einschalten
       alert("Ton an!");
       startPage.style.display = 'none';
       gamePage.style.display = 'block';
       currentRound = 0;
       score = 0;
+
+      // Runden zufällig mischen
+      shuffle(rounds);
+
       loadRound();
     });
-    
+
     // Event für den Neustart-Button
     restartButton.addEventListener('click', () => {
       resultPage.style.display = 'none';
       startPage.style.display = 'block';
     });
-    
+
     // Lädt eine Runde bzw. zeigt die Ergebnisseite, wenn alle Runden abgeschlossen sind
     function loadRound() {
       if (currentRound < rounds.length) {
         const round = rounds[currentRound];
-        // Setze und spiele die MP3
         audioPlayer.src = round.audio;
         audioPlayer.play();
-        
+
         // Optionen zurücksetzen
         optionsDiv.innerHTML = '';
         round.options.forEach((option, index) => {
@@ -211,7 +221,7 @@
         scoreText.textContent = "Du hast " + score + " von " + rounds.length + " Punkten erreicht.";
       }
     }
-    
+
     // Prüft die Antwort und lädt die nächste Runde
     function selectOption(selectedIndex) {
       const round = rounds[currentRound];
