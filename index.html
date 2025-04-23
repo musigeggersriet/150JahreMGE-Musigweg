@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Instrumentenrätsel</title>
   <style>
     body {
@@ -11,7 +11,6 @@
       position: relative;
       color: #fff;
     }
-
     body::before {
       content: "";
       position: fixed;
@@ -24,7 +23,6 @@
       opacity: 0.5;
       z-index: -1;
     }
-
     .topbar {
       background: rgba(0, 110, 168, 0.8);
       display: flex;
@@ -34,22 +32,19 @@
       font-size: 28px;
       font-weight: bold;
     }
-
     .topbar img.logo {
       height: 100px;
       margin-right: 20px;
     }
-
     .container {
       padding: 20px;
       text-align: center;
     }
-
     #startPage h1 {
       margin-top: 50px;
       font-size: 60px;
+      text-align: center;
     }
-
     button {
       padding: 10px 20px;
       font-size: 18px;
@@ -60,33 +55,28 @@
       background-color: #007C5D;
       color: #fff;
     }
-
     #startButton {
       font-size: 30px;
       padding: 25px 40px;
     }
-
     .option-button {
       display: block;
       width: 45%;
       margin: 10px auto;
     }
-
     .audio-display {
       margin: 20px auto;
       text-align: center;
     }
-
     .floating-image {
       position: fixed;
       bottom: 20px;
       left: 20px;
-      width: 125px;
+      width: 200px;
       height: auto;
       opacity: 0.8;
       z-index: 1000;
     }
-
     .result-button {
       background-color: #FF6347;
       font-size: 20px;
@@ -125,15 +115,13 @@
   </div>
 
   <div id="endPage" class="container" style="display:none;">
-    <h2>Hör nun zu, wie alle Musikdrachen zusammen tönen...</h2>
-    <audio id="endAudio" controls autoplay>
+    <h2>Hör nun zu, wie alle Musikdrachen zusammen tönen...</h2>
+    <audio id="endAudio" controls>
       <source src="21 Pippi Langstrumpf.mp3" type="audio/mpeg" />
     </audio>
   </div>
 
   <script>
-    const instrumentList = ['Cornet', 'Flügelhorn', 'Euphonium', 'Posaune', 'Tuba'];
-
     const rounds = [
       { audio: 'Cornet_Concertpiece.mp3', correct: 'Cornet' },
       { audio: 'Euphonium_PaganiniVariations.mp3', correct: 'Euphonium' },
@@ -142,50 +130,23 @@
       { audio: 'Tuba_Tubamuckl.mp3', correct: 'Tuba' }
     ];
 
+    const instrumentOptions = ['Cornet', 'Flügelhorn', 'Euphonium', 'Posaune', 'Tuba'];
+
     let currentRound = 0;
     let score = 0;
 
     const startButton = document.getElementById('startButton');
     const restartButton = document.getElementById('restartButton');
     const endButton = document.getElementById('endButton');
+
     const startPage = document.getElementById('startPage');
     const gamePage = document.getElementById('gamePage');
     const resultPage = document.getElementById('resultPage');
     const endPage = document.getElementById('endPage');
+
     const audioPlayer = document.getElementById('audioPlayer');
     const optionsDiv = document.getElementById('options');
     const scoreText = document.getElementById('scoreText');
-
-    function loadRound() {
-      if (currentRound < rounds.length) {
-        const round = rounds[currentRound];
-        audioPlayer.src = round.audio;
-        audioPlayer.play().catch(() => console.warn("Autoplay blockiert"));
-
-        optionsDiv.innerHTML = '';
-        instrumentList.forEach((instrument) => {
-          const btn = document.createElement('button');
-          btn.className = 'option-button';
-          btn.textContent = instrument;
-          btn.addEventListener('click', () => selectOption(instrument));
-          optionsDiv.appendChild(btn);
-        });
-      } else {
-        audioPlayer.pause();
-        audioPlayer.currentTime = 0;
-        gamePage.style.display = 'none';
-        resultPage.style.display = 'block';
-        scoreText.textContent = "Du hast " + score + " von " + rounds.length + " Punkten erreicht.";
-      }
-    }
-
-    function selectOption(selectedInstrument) {
-      if (selectedInstrument === rounds[currentRound].correct) {
-        score++;
-      }
-      currentRound++;
-      loadRound();
-    }
 
     startButton.addEventListener('click', () => {
       startPage.style.display = 'none';
@@ -206,7 +167,41 @@
     endButton.addEventListener('click', () => {
       resultPage.style.display = 'none';
       endPage.style.display = 'block';
+      const endAudio = document.getElementById('endAudio');
+      endAudio.play().catch((e) => {
+        console.warn("Autoplay blockiert:", e);
+      });
     });
+
+    function loadRound() {
+      if (currentRound < rounds.length) {
+        const round = rounds[currentRound];
+        audioPlayer.src = round.audio;
+        audioPlayer.play();
+        optionsDiv.innerHTML = '';
+        instrumentOptions.forEach((option) => {
+          const btn = document.createElement('button');
+          btn.className = 'option-button';
+          btn.textContent = option;
+          btn.addEventListener('click', () => selectOption(option));
+          optionsDiv.appendChild(btn);
+        });
+      } else {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        gamePage.style.display = 'none';
+        resultPage.style.display = 'block';
+        scoreText.textContent = "Du hast " + score + " von " + rounds.length + " Punkten erreicht.";
+      }
+    }
+
+    function selectOption(selectedOption) {
+      if (selectedOption === rounds[currentRound].correct) {
+        score++;
+      }
+      currentRound++;
+      loadRound();
+    }
   </script>
 </body>
 </html>
