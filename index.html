@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Instrumentenrätsel</title>
   <style>
     body {
@@ -11,6 +11,7 @@
       position: relative;
       color: #fff;
     }
+
     body::before {
       content: "";
       position: fixed;
@@ -23,6 +24,7 @@
       opacity: 0.5;
       z-index: -1;
     }
+
     .topbar {
       background: rgba(0, 110, 168, 0.8);
       display: flex;
@@ -32,18 +34,22 @@
       font-size: 28px;
       font-weight: bold;
     }
+
     .topbar img.logo {
       height: 100px;
       margin-right: 20px;
     }
+
     .container {
       padding: 20px;
       text-align: center;
     }
+
     #startPage h1 {
       margin-top: 50px;
       font-size: 60px;
     }
+
     button {
       padding: 10px 20px;
       font-size: 18px;
@@ -54,19 +60,23 @@
       background-color: #007C5D;
       color: #fff;
     }
+
     #startButton {
       font-size: 30px;
       padding: 25px 40px;
     }
+
     .option-button {
       display: block;
       width: 45%;
       margin: 10px auto;
     }
+
     .audio-display {
       margin: 20px auto;
       text-align: center;
     }
+
     .floating-image {
       position: fixed;
       bottom: 20px;
@@ -76,6 +86,7 @@
       opacity: 0.8;
       z-index: 1000;
     }
+
     .result-button {
       background-color: #FF6347;
       font-size: 20px;
@@ -85,9 +96,9 @@
   </style>
 </head>
 <body>
-  <img src="Sponsor.jpg" alt="Schwebendes Bild" class="floating-image">
+  <img src="Sponsor.jpg" alt="Schwebendes Bild" class="floating-image" />
   <div class="topbar">
-    <img src="Logo.jpg" alt="Logo" class="logo">
+    <img src="Logo.jpg" alt="Logo" class="logo" />
     <span>Musigweg Eggersriet</span>
   </div>
 
@@ -116,17 +127,19 @@
   <div id="endPage" class="container" style="display:none;">
     <h2>Hör nun zu, wie alle Musikdrachen zusammen tönen...</h2>
     <audio id="endAudio" controls autoplay>
-      <source src="21 Pippi Langstrumpf.mp3" type="audio/mpeg">
+      <source src="21 Pippi Langstrumpf.mp3" type="audio/mpeg" />
     </audio>
   </div>
 
   <script>
+    const instrumentList = ['Cornet', 'Flügelhorn', 'Euphonium', 'Posaune', 'Tuba'];
+
     const rounds = [
-      { audio: 'Cornet_Concertpiece.mp3', options: ['Cornet', 'Euphonium', 'Flügelhorn', 'Posaune', 'Tuba'], correct: 0 },
-      { audio: 'Euphonium_PaganiniVariations.mp3', options: ['Cornet', 'Euphonium', 'Flügelhorn', 'Posaune', 'Tuba'], correct: 1 },
-      { audio: 'Flügelhorn_Children of Sanchez.mp3', options: ['Cornet', 'Euphonium', 'Flügelhorn', 'Posaune', 'Tuba'], correct: 2 },
-      { audio: 'Posaune_Radio City.mp3', options: ['Cornet', 'Euphonium', 'Flügelhorn', 'Posaune', 'Tuba'], correct: 3 },
-      { audio: 'Tuba_Tubamuckl.mp3', options: ['Cornet', 'Euphonium', 'Flügelhorn', 'Posaune', 'Tuba'], correct: 4 }
+      { audio: 'Cornet_Concertpiece.mp3', correct: 'Cornet' },
+      { audio: 'Euphonium_PaganiniVariations.mp3', correct: 'Euphonium' },
+      { audio: 'Flügelhorn_Children of Sanchez.mp3', correct: 'Flügelhorn' },
+      { audio: 'Posaune_Radio City.mp3', correct: 'Posaune' },
+      { audio: 'Tuba_Tubamuckl.mp3', correct: 'Tuba' }
     ];
 
     let currentRound = 0;
@@ -143,30 +156,20 @@
     const optionsDiv = document.getElementById('options');
     const scoreText = document.getElementById('scoreText');
 
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-    }
-
     function loadRound() {
       if (currentRound < rounds.length) {
         const round = rounds[currentRound];
-        const options = round.options.map((text, index) => ({ text, index }));
-        shuffle(options);
+        audioPlayer.src = round.audio;
+        audioPlayer.play().catch(() => console.warn("Autoplay blockiert"));
 
         optionsDiv.innerHTML = '';
-        options.forEach(({ text, index }) => {
+        instrumentList.forEach((instrument) => {
           const btn = document.createElement('button');
           btn.className = 'option-button';
-          btn.textContent = text;
-          btn.addEventListener('click', () => selectOption(index));
+          btn.textContent = instrument;
+          btn.addEventListener('click', () => selectOption(instrument));
           optionsDiv.appendChild(btn);
         });
-
-        audioPlayer.src = round.audio;
-        audioPlayer.play().catch(e => console.warn("Autoplay blockiert"));
       } else {
         audioPlayer.pause();
         audioPlayer.currentTime = 0;
@@ -176,8 +179,8 @@
       }
     }
 
-    function selectOption(selectedIndex) {
-      if (selectedIndex === rounds[currentRound].correct) {
+    function selectOption(selectedInstrument) {
+      if (selectedInstrument === rounds[currentRound].correct) {
         score++;
       }
       currentRound++;
@@ -189,7 +192,6 @@
       gamePage.style.display = 'block';
       currentRound = 0;
       score = 0;
-      shuffle(rounds);
       loadRound();
     });
 
@@ -198,7 +200,6 @@
       gamePage.style.display = 'block';
       currentRound = 0;
       score = 0;
-      shuffle(rounds);
       loadRound();
     });
 
